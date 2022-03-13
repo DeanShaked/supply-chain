@@ -1,25 +1,25 @@
 pragma solidity ^0.6.0;
 
-import "./Ownable.sol"
-import "./Item.sol"
+import "./Ownable.sol";
+import "./Item.sol";
 
 contract ItemManager is Ownable {
 
-    enum SupplyChainState{ Created, Paid, Delivered };
+    enum SupplyChainState{ Created, Paid, Delivered }
     
     struct S_item {
         Item _item;
-        string _identifier,
+        string _identifier;
         uint _itemPrice;
         ItemManager.SupplyChainState _state;
     }
 
-    mapping(uint => S_item public items;
+    mapping(uint => S_item) public items;
     uint itemIndex;
 
     
 
-    event SupplyChainStep(uint _itemIndex, uint _step);'
+    event SupplyChainStep(uint _itemIndex, uint _step);
 
     function createItem (string memory _identifier, uint _itemPrice) public onlyOwner { 
         Item item = new Item(this, _itemPrice, itemIndex);
@@ -31,7 +31,7 @@ contract ItemManager is Ownable {
         itemIndex++;
     }
 
-    function triggerPayment(uint _itemIndex) public  {
+    function triggerPayment(uint _itemIndex) public payable {
         require(items[_itemIndex]._itemPrice == msg.value,"Only full payments accepted, item price is invalid.");
         require(items[_itemIndex]._state == SupplyChainState.Created, "Might be elsewhere in the supply chain, item was not created.");
         items[_itemIndex]._state = SupplyChainState.Paid;
@@ -39,7 +39,7 @@ contract ItemManager is Ownable {
         emit SupplyChainStep(itemIndex, uint(items[itemIndex]._state));
     }
 
-    function triggerDelivery() public onlyOwner {
+    function triggerDelivery(uint _itemIndex) public onlyOwner {
         require(items[_itemIndex]._state == SupplyChainState.Paid, "Might be elsewhere in the supply chain, item was not created.");
         items[_itemIndex]._state = SupplyChainState.Delivered;
         
