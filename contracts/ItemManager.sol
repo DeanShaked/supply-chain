@@ -1,6 +1,7 @@
 pragma solidity ^0.6.0;
 
 import "./Ownable.sol"
+import "./Item.sol"
 
 contract ItemManager is Ownable {
 
