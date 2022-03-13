@@ -18,14 +18,17 @@ class App extends Component {
 
       // Get the contract instance.
       this.networkId = await this.web3.eth.net.getId();
-      this.itemManager = new web3.eth.Contract(
+
+      this.itemManager = new this.web3.eth.Contract(
         ItemManagerContract.abi,
-        ItemManagerContract.networks[networkId] && deployedNetwork.address
+        ItemManagerContract.networks[this.networkId] &&
+          ItemManagerContract.networks[this.networkId].address
       );
 
-      this.item = new web3.eth.Contract(
+      this.item = new this.web3.eth.Contract(
         ItemContract.abi,
-        ItemContract.networks[networkId] && deployedNetwork.address
+        ItemContract.networks[this.networkId] &&
+          ItemContract.networks[this.networkId].address
       );
 
       // Set web3, accounts, and contract to the state, and then proceed with an
@@ -42,7 +45,7 @@ class App extends Component {
 
   handleInputChange = (event) => {
     const target = event.target;
-    const value = target.type == "checkbox" ? target.checked : target.value;
+    const value = target.type === "checkbox" ? target.checked : target.value;
     const name = target.name;
     this.setState({
       [name]: value,
@@ -51,9 +54,13 @@ class App extends Component {
 
   handleSubmit = async () => {
     const { cost, itemName } = this.state;
-    await this.itemManager.methods
+    let result = await this.itemManager.methods
       .createItem(itemName, cost)
       .send({ from: this.accounts[0] });
+
+    alert(
+      `Send ${cost} Wei to: ${result.events.SupplychainStep.returnValues._address}`
+    );
   };
 
   render() {
@@ -71,16 +78,18 @@ class App extends Component {
             type={"text"}
             name="cost"
             value={this.state.cost}
-            onChange={null}
+            onChange={this.handleInputChange}
           />
           Item Identifier:{" "}
           <input
             type={"text"}
             name="itemName"
             value={this.state.itemName}
-            onChange={null}
+            onChange={this.handleInputChange}
           />
-          <button type="button" onClick={this.handleSubmit}></button>
+          <button type="button" onClick={this.handleSubmit}>
+            Create new item
+          </button>
         </div>
       </div>
     );
