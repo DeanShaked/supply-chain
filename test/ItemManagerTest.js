@@ -1,6 +1,6 @@
 const ItemManager = artifacts.require("./ItemManager.sol");
 
-contract("ItemManager", (accounts) => {
+contract("ItemManagerTest", (accounts) => {
   it(" Shoud be able to add an item", async function () {
     const itemManagerInstance = await ItemManager.deployed();
     const itemName = "test1";
